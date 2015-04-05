@@ -50,7 +50,7 @@ var game = require('../Helper/Init');
 function Explosion(positionX, positionY){
 
 	// Add sounds
-	explosionSound = game.add.audio('explosionSound');
+	var explosionSound = game.add.audio('explosionSound');
 
 	var explosion = game.add.sprite(positionX, positionY, 'explosion');
 	explosion.anchor.setTo(0.5, 0.5);
@@ -257,8 +257,13 @@ var menuState = {
 		game.load.spritesheet('button', 'resourses/images/menu_button.png', 82, 32);
 		game.load.bitmapFont('carrier_command', 'resourses/fonts/carrier_command.png', 'resourses/fonts/carrier_command.xml');
 		game.load.audio('explosion', 'resourses/audio/explosion.wav');
+		game.load.audio('soundtrack', 'resourses/audio/soundtrack.mp3');
 	},
 	create: function(){
+
+		var soundtrack = game.add.audio('soundtrack');
+		soundtrack.play();
+
 		// Create logo and set its position
 		logo = game.add.sprite(GLOBAL.WIDTH / 2, GLOBAL.HEIGHT / 4, 'logo');
 		logo.scale.setTo(0.25, 0.25);
@@ -276,7 +281,11 @@ var menuState = {
 		hintText = game.add.bitmapText(GLOBAL.WIDTH / 2 + 50, GLOBAL.HEIGHT * 3 / 4,
 			'carrier_command', text, 20);
 		hintText.anchor.setTo(0.5, 0.5);
-		
+	},
+	shutdown: function(){
+		console.log(arguments);
+		// When closing - turn soundtrack off
+		soundtrack.stop();
 	}
 };
 

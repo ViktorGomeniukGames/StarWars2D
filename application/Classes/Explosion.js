@@ -4,7 +4,7 @@ var game = require('../Helper/Init');
 function Explosion(positionX, positionY){
 
 	// Add sounds
-	explosionSound = game.add.audio('explosionSound');
+	var explosionSound = game.add.audio('explosionSound');
 
 	var explosion = game.add.sprite(positionX, positionY, 'explosion');
 	explosion.anchor.setTo(0.5, 0.5);
