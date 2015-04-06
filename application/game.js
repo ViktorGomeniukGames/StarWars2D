@@ -282,10 +282,8 @@ var menuState = {
 			'carrier_command', text, 20);
 		hintText.anchor.setTo(0.5, 0.5);
 	},
-	shutdown: function(){
-		console.log(arguments);
-		// When closing - turn soundtrack off
-		soundtrack.stop();
+	shutdown: function(game){
+		game.sound.stopAll();
 	}
 };
 
