@@ -4,8 +4,20 @@ var GLOBAL = require('../Helper/Globals');
 var getRandomInt = require('../Helper/Functions').getRandomInt;
 
 var Asteroid = function(){
-	// Create new object on random position
-	var asteroid = game.add.sprite(getRandomInt(0, GLOBAL.WIDTH), getRandomInt(0, GLOBAL.HEIGHT), 'asteroid');
+	// Generate new random position
+	var newPosition = {
+		x: getRandomInt(0, GLOBAL.WIDTH),
+		y: getRandomInt(0, GLOBAL.HEIGHT)
+	};
+	// Do not create new asteroid near player
+	var distance = game.math.distance(newPosition.x, newPosition.y, player.x, player.y);
+	if (distance < 100){
+		return Asteroid();
+	};
+
+	// Create new object
+	var asteroid = game.add.sprite(newPosition.x, newPosition.y, 'asteroid');
+
 	asteroid.anchor.setTo(0.5, 0.5);
 	asteroid.scale.setTo(0.5, 0.5);
 
@@ -43,7 +55,7 @@ var Asteroid = function(){
 };
 
 module.exports = Asteroid;
-},{"../Helper/Functions":6,"../Helper/Globals":7,"../Helper/Init":8}],2:[function(require,module,exports){
+},{"../Helper/Functions":8,"../Helper/Globals":9,"../Helper/Init":10}],2:[function(require,module,exports){
 var game = require('../Helper/Init');
 
 
@@ -63,7 +75,7 @@ function Explosion(positionX, positionY){
 };
 
 module.exports = Explosion;
-},{"../Helper/Init":8}],3:[function(require,module,exports){
+},{"../Helper/Init":10}],3:[function(require,module,exports){
 var game = require('../Helper/Init');
 var GLOBAL = require('../Helper/Globals');
 
@@ -97,7 +109,7 @@ function Ship(){
 };
 
 module.exports = Ship;
-},{"../Helper/Globals":7,"../Helper/Init":8}],4:[function(require,module,exports){
+},{"../Helper/Globals":9,"../Helper/Init":10}],4:[function(require,module,exports){
 var game = require('../Helper/Init');
 var GLOBAL = require('../Helper/Globals');
 
@@ -141,43 +153,86 @@ var Shoot = function(){
 };
 
 module.exports = Shoot;
-},{"../Helper/Globals":7,"../Helper/Init":8}],5:[function(require,module,exports){
+},{"../Helper/Globals":9,"../Helper/Init":10}],5:[function(require,module,exports){
+var game = require('../Helper/Init');
+
+
+var Gamepad = function(player){
+	// var control = new Phaser.Gamepad(game);
+	// control.start();
+	// control.addCallbacks(game, {
+	// 	onConnectCallback: function(){console.log('onConnectCallback')},
+	// 	onDisconnectCallback: function(){console.log('onDisconnectCallback')},
+	// 	onDownCallback: function(){console.log('onDownCallback')},
+	// 	onUpCallback: function(){console.log('onUpCallback')},
+	// 	onAxisCallback: function(){console.log('onAxisCallback')},
+	// 	onFloatCallback: function(){console.log('onFloatCallback')}
+	// });
+};
+
+module.exports = Gamepad;
+},{"../Helper/Init":10}],6:[function(require,module,exports){
 var game = require('../Helper/Init');
 var GLOBAL = require('../Helper/Globals');
 var Shoot = require('../Classes/Shoot');
 
 
-var CONTROLS = function(player){
-    // Set player's control combo
-    if (game.input.keyboard.isDown(Phaser.Keyboard.W)){
-    	player.animations.next(1);
-    	game.physics.arcade.velocityFromAngle(player.angle, 200, player.body.velocity);
-    } else {
-    	player.animations.previous(1);
-    };
-	if (game.input.keyboard.isDown(Phaser.Keyboard.A)){
-        player.rotation -= 0.05;
-    } else if (game.input.keyboard.isDown(Phaser.Keyboard.D)) {
-    	player.rotation += 0.05;
-    };
-    if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)){
-    	// Fire with some timeout
-    	var fire = new Date().getTime() / 1000;
-    	if((fire - GLOBAL.LAST_SHOOT) > 0.25){
-    		GLOBAL.LAST_SHOOT = fire;
-    		GLOBAL.SHOOTS.push(new Shoot());
-            fireSound.play();
-    	};
+var Keyboard = function(player){
+
+    var update = function(){
+        console.log('here');
+        // Set player's control combo
+        if (game.input.keyboard.isDown(Phaser.Keyboard.W)){
+            player.animations.next(1);
+            game.physics.arcade.velocityFromAngle(player.angle, 200, player.body.velocity);
+        } else {
+            player.animations.previous(1);
+        };
+        if (game.input.keyboard.isDown(Phaser.Keyboard.A)){
+            player.rotation -= 0.05;
+        } else if (game.input.keyboard.isDown(Phaser.Keyboard.D)) {
+            player.rotation += 0.05;
+        };
+        if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)){
+            // Fire with some timeout
+            var fire = new Date().getTime() / 1000;
+            if((fire - GLOBAL.LAST_SHOOT) > 0.25){
+                GLOBAL.LAST_SHOOT = fire;
+                GLOBAL.SHOOTS.push(new Shoot());
+                fireSound.play();
+            };
+        };
+
+        // Add handler for escape key
+        if (game.input.keyboard.isDown(Phaser.Keyboard.ESC)){
+            game.state.start('Final');
+        };
     };
 
-    // Add handler for escape key
-	if (game.input.keyboard.isDown(Phaser.Keyboard.ESC)){
-		game.state.start('Final');
+    return {
+        update: update
+    };
+};
+
+module.exports = Keyboard;
+},{"../Classes/Shoot":4,"../Helper/Globals":9,"../Helper/Init":10}],7:[function(require,module,exports){
+// var game = require('../Helper/Init');
+// var GLOBAL = require('../Helper/Globals');
+// var Shoot = require('../Classes/Shoot');
+var Keyboard = require('./Keyboard');
+var Gamepad = require('./Gamepad');
+
+
+var CONTROLS = function(player){
+	var controlMethod = new Keyboard(player);
+    // Gamepad(player);
+    return {
+    	update: controlMethod.update
     };
 };
 
 module.exports = CONTROLS;
-},{"../Classes/Shoot":4,"../Helper/Globals":7,"../Helper/Init":8}],6:[function(require,module,exports){
+},{"./Gamepad":5,"./Keyboard":6}],8:[function(require,module,exports){
 var game = require('./Init');
 var Explosion = require('../Classes/Explosion');
 var GLOBAL = require('./Globals');
@@ -208,7 +263,7 @@ var Functions = {
 };
 
 module.exports = Functions;
-},{"../Classes/Explosion":2,"./Globals":7,"./Init":8}],7:[function(require,module,exports){
+},{"../Classes/Explosion":2,"./Globals":9,"./Init":10}],9:[function(require,module,exports){
 var GLOBAL = {
 	WIDTH: window.innerWidth - 20,
 	HEIGHT: window.innerHeight - 20,
@@ -221,14 +276,14 @@ var GLOBAL = {
 };
 
 module.exports = GLOBAL;
-},{}],8:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 var GLOBAL = require('./Globals');
 
 var game = new Phaser.Game(
 	GLOBAL.WIDTH, GLOBAL.HEIGHT, Phaser.AUTO, ''
 );
 module.exports = game;
-},{"./Globals":7}],9:[function(require,module,exports){
+},{"./Globals":9}],11:[function(require,module,exports){
 var game = require('./Init');
 
 var MenuButton = function(text, position, clickHandler){
@@ -263,7 +318,7 @@ var MenuButton = function(text, position, clickHandler){
 };
 
 module.exports = MenuButton;
-},{"./Init":8}],10:[function(require,module,exports){
+},{"./Init":10}],12:[function(require,module,exports){
 var game = require('../Helper/Init');
 var GLOBAL = require('../Helper/Globals');
 var MenuButton = require('../Helper/MenuButton');
@@ -281,7 +336,7 @@ var finalState = {
 };
 
 module.exports = finalState;
-},{"../Helper/Globals":7,"../Helper/Init":8,"../Helper/MenuButton":9}],11:[function(require,module,exports){
+},{"../Helper/Globals":9,"../Helper/Init":10,"../Helper/MenuButton":11}],13:[function(require,module,exports){
 var game = require('../Helper/Init');
 var MenuButton = require('../Helper/MenuButton');
 var GLOBAL = require('../Helper/Globals');
@@ -326,14 +381,14 @@ var menuState = {
 };
 
 module.exports = menuState;
-},{"../Helper/Globals":7,"../Helper/Init":8,"../Helper/MenuButton":9}],12:[function(require,module,exports){
+},{"../Helper/Globals":9,"../Helper/Init":10,"../Helper/MenuButton":11}],14:[function(require,module,exports){
 // Load helper functions and modules
 var game = require('../Helper/Init');
 var MenuButton = require('../Helper/MenuButton');
 var GLOBAL = require('../Helper/Globals');
 var getRandomInt = require('../Helper/Functions').getRandomInt;
 var collideObjects = require('../Helper/Functions').collideObjects;
-var CONTROLS = require('../Control/main');
+var CONTROLS = require('../Control/Main');
 
 // Load classes
 var Shoot = require('../Classes/Shoot');
@@ -385,16 +440,29 @@ function create(){
 
     // Add sounds
     fireSound = game.add.audio('fire');
+
+    // Enable control
+    c = new CONTROLS(player);
+    console.log(c);
+
+    // Temp gamepad
+ //    game.input.gamepad.start();
+ //    console.log(game.input.gamepad);
+	// pad1 = game.input.gamepad.pad1;
+	// console.log(pad1.connected);
+
 };
 // Update game state
 function update(){
+
+	c.update();
 
 	// Set player's physic
     player.body.velocity.x = 0;
     player.body.velocity.y = 0;
     player.body.angularVelocity = 0;
 
-    CONTROLS(player);
+    // CONTROLS(player);
 
     // Check how many asteroids there are on map
     if(GLOBAL.ROCKS.length < GLOBAL.LEVEL * GLOBAL.COMPLEXITY){
@@ -413,7 +481,7 @@ function update(){
 };
 
 module.exports = playState;
-},{"../Classes/Asteroid":1,"../Classes/Explosion":2,"../Classes/Ship":3,"../Classes/Shoot":4,"../Control/main":5,"../Helper/Functions":6,"../Helper/Globals":7,"../Helper/Init":8,"../Helper/MenuButton":9}],13:[function(require,module,exports){
+},{"../Classes/Asteroid":1,"../Classes/Explosion":2,"../Classes/Ship":3,"../Classes/Shoot":4,"../Control/Main":7,"../Helper/Functions":8,"../Helper/Globals":9,"../Helper/Init":10,"../Helper/MenuButton":11}],15:[function(require,module,exports){
 // Load required modules
 var game = require('./Helper/Init');
 var MenuButton = require('./Helper/MenuButton');
@@ -428,4 +496,4 @@ game.state.add('Menu', menuState);
 
 // Start game loading menu
 game.state.start('Menu');
-},{"./Helper/Init":8,"./Helper/MenuButton":9,"./States/FinalState":10,"./States/MenuState":11,"./States/PlayState":12}]},{},[13]);
+},{"./Helper/Init":10,"./Helper/MenuButton":11,"./States/FinalState":12,"./States/MenuState":13,"./States/PlayState":14}]},{},[15]);

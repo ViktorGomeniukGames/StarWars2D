@@ -56,16 +56,21 @@ function create(){
 
     // Add sounds
     fireSound = game.add.audio('fire');
+
+    // Enable control
+    control = new CONTROLS(player);
+
 };
 // Update game state
 function update(){
+
+	// Check for a player control events
+	control.update();
 
 	// Set player's physic
     player.body.velocity.x = 0;
     player.body.velocity.y = 0;
     player.body.angularVelocity = 0;
-
-    CONTROLS(player);
 
     // Check how many asteroids there are on map
     if(GLOBAL.ROCKS.length < GLOBAL.LEVEL * GLOBAL.COMPLEXITY){
