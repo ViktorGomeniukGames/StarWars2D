@@ -6,7 +6,6 @@ var Shoot = require('../Classes/Shoot');
 var Keyboard = function(player){
 
     var update = function(){
-        console.log('here');
         // Set player's control combo
         if (game.input.keyboard.isDown(Phaser.Keyboard.W)){
             player.animations.next(1);

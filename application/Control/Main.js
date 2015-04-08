@@ -3,11 +3,12 @@
 // var Shoot = require('../Classes/Shoot');
 var Keyboard = require('./Keyboard');
 var Gamepad = require('./Gamepad');
+var Touch = require('./Touch');
 
 
 var CONTROLS = function(player){
 	var controlMethod = new Keyboard(player);
-    // Gamepad(player);
+    // var controlMethod = new Touch(player);
     return {
     	update: controlMethod.update
     };

@@ -5,7 +5,7 @@ var GLOBAL = require('../Helper/Globals');
 
 function Ship(){
 	// Create and configure ship
-	ship = game.add.sprite(GLOBAL.WIDTH / 2, GLOBAL.HEIGHT / 2, 'ship');
+	ship = game.add.sprite(960, 540, 'ship');
 	ship.anchor.setTo(0.5, 0.5);
 	ship.life = 3;
 
