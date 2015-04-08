@@ -7,9 +7,11 @@ var Touch = require('./Touch');
 
 
 var CONTROLS = function(player){
-	var controlMethod = new Keyboard(player);
-    // var controlMethod = new Touch(player);
+	// var controlMethod = new Keyboard(player);
+    var controlMethod = new Touch(player);
     return {
+    	preload: controlMethod.preload,
+    	create: controlMethod.create,
     	update: controlMethod.update
     };
 };
