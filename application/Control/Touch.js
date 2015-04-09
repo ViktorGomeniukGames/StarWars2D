@@ -19,19 +19,20 @@ var Touch = function(){
             {
                 x: GLOBAL.WIDTH - 60,
                 y: GLOBAL.HEIGHT - 50
-            }, 5, 5, function(){player.fire()});
+            }, 5, 5, function(){player.fire()}, 1, 1);
         // Create exitButton
         var exitButton = new TouchButton({
             x: 60,
             y: 60
         }, 9, 9, function(){
             game.state.start('Final');
-        });
+        }, 1, 1);
         var pad = new TouchButton({
-            x: 60, y: 60
-        }, 8, 8, padControl);
+            x: 90, y: GLOBAL.HEIGHT - 90
+        }, 8, 8, padControl, 1.5, 1.5);
     };
     var padControl = function(button, point){
+        console.log(button);
         console.log(point);
     };
 

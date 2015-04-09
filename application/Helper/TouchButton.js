@@ -1,8 +1,9 @@
 var game = require('./Init');
 
-var TouchButton = function(position, startFrame, animFrame, clickHandler){
+var TouchButton = function(position, startFrame, animFrame, clickHandler, scaleX, scaleY){
 
     var button = game.add.sprite(position.x, position.y, 'gamepad');
+        button.scale.setTo(scaleX, scaleY);
     	button.animations.add('clicked', frames, 10, false, false);
     	button.animations.frame = startFrame;
         button.anchor.setTo(0.5, 0.5);
