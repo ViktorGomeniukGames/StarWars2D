@@ -4,7 +4,7 @@ var MenuButton = require('../Helper/MenuButton');
 var GLOBAL = require('../Helper/Globals');
 var getRandomInt = require('../Helper/Functions').getRandomInt;
 var collideObjects = require('../Helper/Functions').collideObjects;
-var CONTROLS = require('../Control/Main');
+var CONTROLS = require('../Control/Control');
 
 // Load classes
 var Shoot = require('../Classes/Shoot');
@@ -43,22 +43,24 @@ function create(){
 	game.world.setBounds(0, 0, 1920, 1080);
 
 	// load background image
-	// var background = game.add.sprite(0, 0, 'firstBackgroundLayer');
-	game.stage.backgroundColor = '#ffffff';
+	var background = game.add.sprite(0, 0, 'firstBackgroundLayer');
 
 	// Create and configure player
 	player = new Ship();
 
     // Add proper text output
-	scoreText = game.add.bitmapText(10, 10, 'carrier_command', 'Score: ' + GLOBAL.SCORE, 20);
+	scoreText = game.add.bitmapText(GLOBAL.WIDTH - 10, 10, 'carrier_command', 'Score: ' + GLOBAL.SCORE, 20);
 	scoreText.update = function(){
 		scoreText.text = 'Score: ' + GLOBAL.SCORE;
 	}
-	scoreText.anchor.setTo(0, 0);
-	livesText = game.add.bitmapText(10, 30, 'carrier_command', 'Lives: ' + player.life, 20);
+	scoreText.anchor.setTo(1, 0);
+    scoreText.fixedToCamera = true;
+	livesText = game.add.bitmapText(GLOBAL.WIDTH - 10, 30, 'carrier_command', 'Lives: ' + player.life, 20);
 	livesText.update = function(){
 		livesText.text = 'Lives: ' + player.life;
 	}
+	livesText.anchor.setTo(1, 0);
+    livesText.fixedToCamera = true;
 
     // Add sounds
     fireSound = game.add.audio('fire');
@@ -69,11 +71,6 @@ function create(){
 };
 // Update game state
 function update(){
-
-	// Set player's physic
-    player.body.velocity.x = 0;
-    player.body.velocity.y = 0;
-    player.body.angularVelocity = 0;
 
 	// Check for a player control events
 	control.update();

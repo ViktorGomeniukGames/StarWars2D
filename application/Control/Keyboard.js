@@ -1,31 +1,23 @@
 var game = require('../Helper/Init');
 var GLOBAL = require('../Helper/Globals');
-var Shoot = require('../Classes/Shoot');
 
 
-var Keyboard = function(player){
+var Keyboard = function(){
 
     var update = function(){
         // Set player's control combo
         if (game.input.keyboard.isDown(Phaser.Keyboard.W)){
-            player.animations.next(1);
-            game.physics.arcade.velocityFromAngle(player.angle, 200, player.body.velocity);
+            player.moveForward();
         } else {
-            player.animations.previous(1);
+            player.stopMoving();
         };
         if (game.input.keyboard.isDown(Phaser.Keyboard.A)){
-            player.rotation -= 0.05;
+            player.turnLeft();
         } else if (game.input.keyboard.isDown(Phaser.Keyboard.D)) {
-            player.rotation += 0.05;
+            player.turnRight();
         };
         if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)){
-            // Fire with some timeout
-            var fire = new Date().getTime() / 1000;
-            if((fire - GLOBAL.LAST_SHOOT) > 0.25){
-                GLOBAL.LAST_SHOOT = fire;
-                GLOBAL.SHOOTS.push(new Shoot());
-                fireSound.play();
-            };
+            player.fire();
         };
 
         // Add handler for escape key
@@ -35,7 +27,13 @@ var Keyboard = function(player){
     };
 
     return {
-        update: update
+        preload: function(){
+            console.log('Nothing to preload');
+        },
+        update: update,
+        create: function(player){
+            console.log('Nothing to create');
+        }
     };
 };
 

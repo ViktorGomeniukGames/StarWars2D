@@ -78,6 +78,7 @@ module.exports = Explosion;
 },{"../Helper/Init":11}],3:[function(require,module,exports){
 var game = require('../Helper/Init');
 var GLOBAL = require('../Helper/Globals');
+var Shoot = require('../Classes/Shoot');
 
 
 
@@ -104,12 +105,37 @@ function Ship(){
 			game.state.start('Final', false, false, {});
 		};
 	};
+	ship.fire = function(){
+		// Fire with some timeout
+		var fire = new Date().getTime() / 1000;
+        if((fire - GLOBAL.LAST_SHOOT) > 0.25){
+            GLOBAL.LAST_SHOOT = fire;
+            GLOBAL.SHOOTS.push(new Shoot());
+            fireSound.play();
+        };
+	};
+	ship.moveForward = function(){
+		this.animations.next(1);
+        game.physics.arcade.velocityFromAngle(this.angle, 200, this.body.velocity);
+	};
+	ship.turnLeft = function(){
+		this.rotation -= 0.05;
+	};
+	ship.turnRight = function(){
+		this.rotation += 0.05;
+	};
+	ship.stopMoving = function(){
+		this.body.velocity.x = 0;
+	    this.body.velocity.y = 0;
+	    this.body.angularVelocity = 0;
+		this.animations.previous(1);
+	};
 
 	return ship;
 };
 
 module.exports = Ship;
-},{"../Helper/Globals":10,"../Helper/Init":11}],4:[function(require,module,exports){
+},{"../Classes/Shoot":4,"../Helper/Globals":10,"../Helper/Init":11}],4:[function(require,module,exports){
 var game = require('../Helper/Init');
 var GLOBAL = require('../Helper/Globals');
 
@@ -154,6 +180,26 @@ var Shoot = function(){
 
 module.exports = Shoot;
 },{"../Helper/Globals":10,"../Helper/Init":11}],5:[function(require,module,exports){
+// var game = require('../Helper/Init');
+// var GLOBAL = require('../Helper/Globals');
+// var Shoot = require('../Classes/Shoot');
+var Keyboard = require('./Keyboard');
+var Gamepad = require('./Gamepad');
+var Touch = require('./Touch');
+
+
+var CONTROLS = function(player){
+	// var controlMethod = new Keyboard(player);
+    var controlMethod = new Touch(player);
+    return {
+    	preload: controlMethod.preload,
+    	create: controlMethod.create,
+    	update: controlMethod.update
+    };
+};
+
+module.exports = CONTROLS;
+},{"./Gamepad":6,"./Keyboard":7,"./Touch":8}],6:[function(require,module,exports){
 var game = require('../Helper/Init');
 
 
@@ -183,35 +229,27 @@ var Gamepad = function(player){
 };
 
 module.exports = Gamepad;
-},{"../Helper/Init":11}],6:[function(require,module,exports){
+},{"../Helper/Init":11}],7:[function(require,module,exports){
 var game = require('../Helper/Init');
 var GLOBAL = require('../Helper/Globals');
-var Shoot = require('../Classes/Shoot');
 
 
-var Keyboard = function(player){
+var Keyboard = function(){
 
     var update = function(){
         // Set player's control combo
         if (game.input.keyboard.isDown(Phaser.Keyboard.W)){
-            player.animations.next(1);
-            game.physics.arcade.velocityFromAngle(player.angle, 200, player.body.velocity);
+            player.moveForward();
         } else {
-            player.animations.previous(1);
+            player.stopMoving();
         };
         if (game.input.keyboard.isDown(Phaser.Keyboard.A)){
-            player.rotation -= 0.05;
+            player.turnLeft();
         } else if (game.input.keyboard.isDown(Phaser.Keyboard.D)) {
-            player.rotation += 0.05;
+            player.turnRight();
         };
         if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)){
-            // Fire with some timeout
-            var fire = new Date().getTime() / 1000;
-            if((fire - GLOBAL.LAST_SHOOT) > 0.25){
-                GLOBAL.LAST_SHOOT = fire;
-                GLOBAL.SHOOTS.push(new Shoot());
-                fireSound.play();
-            };
+            player.fire();
         };
 
         // Add handler for escape key
@@ -221,35 +259,22 @@ var Keyboard = function(player){
     };
 
     return {
-        update: update
+        preload: function(){
+            console.log('Nothing to preload');
+        },
+        update: update,
+        create: function(player){
+            console.log('Nothing to create');
+        }
     };
 };
 
 module.exports = Keyboard;
-},{"../Classes/Shoot":4,"../Helper/Globals":10,"../Helper/Init":11}],7:[function(require,module,exports){
-// var game = require('../Helper/Init');
-// var GLOBAL = require('../Helper/Globals');
-// var Shoot = require('../Classes/Shoot');
-var Keyboard = require('./Keyboard');
-var Gamepad = require('./Gamepad');
-var Touch = require('./Touch');
-
-
-var CONTROLS = function(player){
-	// var controlMethod = new Keyboard(player);
-    var controlMethod = new Touch(player);
-    return {
-    	preload: controlMethod.preload,
-    	create: controlMethod.create,
-    	update: controlMethod.update
-    };
-};
-
-module.exports = CONTROLS;
-},{"./Gamepad":5,"./Keyboard":6,"./Touch":8}],8:[function(require,module,exports){
+},{"../Helper/Globals":10,"../Helper/Init":11}],8:[function(require,module,exports){
 var game = require('../Helper/Init');
 var GLOBAL = require('../Helper/Globals');
 var Shoot = require('../Classes/Shoot');
+var TouchButton = require('../Helper/TouchButton');
 
 
 var Touch = function(){
@@ -261,115 +286,63 @@ var Touch = function(){
     var __FIRE = false;
 
     var create = function(player){
-
-        var button = game.add.sprite(100, 100, 'gamepad');
-            button.anchor.setTo(0.5, 0.5);
-            // button.scale.setTo(3, 2);
-            button.animations.add('clicked', null, 10, false, false);
-            button.inputEnabled = true;
-            button.fixedToCamera = true;
-
-            // Set handlers
-            button.events.onInputDown.add(function(){
-                button.animations.next(1);
-            }, this);
-            // button.events.onInputUp.add(function(){
-            //     button.animations.previous(1);
-            //     if(clickHandler){
-            //         clickHandler();
-            //     };
-            // }, this);
-
-
-
-
-
-        // // Create virtual fire button
-        // var fireButton = game.add.button(600, 500, 'fireButton', null, this, 0, 1, 0, 1);  //game, x, y, key, callback, callbackContext, overFrame, outFrame, downFrame, upFrame
-        //     fireButton.fixedToCamera = true;  //our buttons should stay on the same place  
-        //     fireButton.events.onInputOver.add(function(){__FIRE = true;});
-        //     fireButton.events.onInputOut.add(function(){__FIRE = false;});
-        //     fireButton.events.onInputDown.add(function(){__FIRE = true;});
-        //     fireButton.events.onInputUp.add(function(){__FIRE = false;});
-
-        // // Create button for rotating left
-        // var leftButton = game.add.button(0, 472, 'horizontalButton', null, this, 0, 1, 0, 1);
-        //     leftButton.fixedToCamera = true;
-        //     leftButton.events.onInputOver.add(function(){__LEFT = true;});
-        //     leftButton.events.onInputOut.add(function(){__LEFT = false;});
-        //     leftButton.events.onInputDown.add(function(){__LEFT = true;});
-        //     leftButton.events.onInputUp.add(function(){__LEFT = false;});
-
-        // // Create button for rotating left and moving forward
-        // var leftDiagonalButton = game.add.button(32, 536, 'diagonalButton', null, this, 6, 4, 6, 4);
-        //     leftDiagonalButton.fixedToCamera = true;
-        //     leftDiagonalButton.events.onInputOver.add(function(){__LEFT = true; __FORWARD = true;});
-        //     leftDiagonalButton.events.onInputOut.add(function(){__LEFT = false; __FORWARD = false;});
-        //     leftDiagonalButton.events.onInputDown.add(function(){__LEFT = true; __FORWARD = true;});
-        //     leftDiagonalButton.events.onInputUp.add(function(){__LEFT = false; __FORWARD = false;});
-
-        // // Create button for moving forward
-        // var forwardButton = game.add.button(160, 472, 'horizontalButton', null, this, 0, 1, 0, 1);
-        //     forwardButton.fixedToCamera = true;
-        //     forwardButton.events.onInputOver.add(function(){__RIGHT = true;});
-        //     forwardButton.events.onInputOut.add(function(){__RIGHT = false;});
-        //     forwardButton.events.onInputDown.add(function(){__RIGHT = true;});
-        //     forwardButton.events.onInputUp.add(function(){__RIGHT = false;});
-
-        // // Create button for rotating right and moving forward
-        // var rightDiagonalButton = game.add.button(160, 536, 'diagonalButton', null, this, 7, 5, 7, 5);
-        //     rightDiagonalButton.fixedToCamera = true;
-        //     rightDiagonalButton.events.onInputOver.add(function(){__RIGHT = true; __FORWARD = true;});
-        //     rightDiagonalButton.events.onInputOut.add(function(){__RIGHT = false; __FORWARD = false;});
-        //     rightDiagonalButton.events.onInputDown.add(function(){__RIGHT = true; __FORWARD = true;});
-        //     rightDiagonalButton.events.onInputUp.add(function(){__RIGHT = false; __FORWARD = false;});
-
-        // // Create button for rotating right
-        // var rightButton = game.add.button(96, 536, 'verticalButton', null, this, 0, 1, 0, 1);
-        //     rightButton.fixedToCamera = true;
-        //     rightButton.events.onInputOver.add(function(){__FORWARD = true;});
-        //     rightButton.events.onInputOut.add(function(){__FORWARD = false;});
-        //     rightButton.events.onInputDown.add(function(){__FORWARD = true;});
-        //     rightButton.events.onInputUp.add(function(){__FORWARD = false;});
-
+        var that = this;
+        // Create fireButton
+        var fireButton = new TouchButton(
+            {
+                x: GLOBAL.WIDTH - 60,
+                y: GLOBAL.HEIGHT - 50
+            }, 5, 5, function(){player.fire()});
+        // Create exitButton
+        var exitButton = new TouchButton({
+            x: 60,
+            y: 60
+        }, 9, 9, function(){
+            game.state.start('Final');
+        });
+        var pad = new TouchButton({
+            x: 60, y: 60
+        }, 8, 8, padControl);
+    };
+    var padControl = function(button, point){
+        console.log(point);
     };
 
     var update = function(){
+        // player.body.velocity.x = 0;
+        // player.body.velocity.y = 0;
+        // player.body.angularVelocity = 0;
 
-        player.body.velocity.x = 0;
-        player.body.velocity.y = 0;
-        player.body.angularVelocity = 0;
+        // // Moving combo
+        // switch(__LEFT, __FORWARD, __RIGHT){
+        //     // Rotate left
+        //     case true, false, false:
+        //         player.rotation -= 0.05;
 
-        // Moving combo
-        switch(__LEFT, __FORWARD, __RIGHT){
-            // Rotate left
-            case true, false, false:
-                player.rotation -= 0.05;
+        //     // Rotate right
+        //     case false, false, true:
+        //         player.rotation += 0.05;
 
-            // Rotate right
-            case false, false, true:
-                player.rotation += 0.05;
+        //     // Move forward
+        //     case false, true, false:
+        //         player.animations.next(1);
+        //         game.physics.arcade.velocityFromAngle(player.angle, 200, player.body.velocity);
 
-            // Move forward
-            case false, true, false:
-                player.animations.next(1);
-                game.physics.arcade.velocityFromAngle(player.angle, 200, player.body.velocity);
+        //     // Otherwise - stop animation and do nothing
+        //     default:
+        //         player.animations.previous(1);
+        //         // player.body.angularVelocity = 0;
 
-            // Otherwise - stop animation and do nothing
-            default:
-                player.animations.previous(1);
-                // player.body.angularVelocity = 0;
-
-        };
-        // Fire
-        if(__FIRE){
-            var fire = new Date().getTime() / 1000;
-            if((fire - GLOBAL.LAST_SHOOT) > 0.25){
-                GLOBAL.LAST_SHOOT = fire;
-                GLOBAL.SHOOTS.push(new Shoot());
-                fireSound.play();
-            };
-        };
+        // };
+        // // Fire
+        // if(__FIRE){
+        //     var fire = new Date().getTime() / 1000;
+        //     if((fire - GLOBAL.LAST_SHOOT) > 0.25){
+        //         GLOBAL.LAST_SHOOT = fire;
+        //         GLOBAL.SHOOTS.push(new Shoot());
+        //         fireSound.play();
+        //     };
+        // };
     };
 
     var preload = function(){
@@ -389,7 +362,7 @@ var Touch = function(){
 };
 
 module.exports = Touch;
-},{"../Classes/Shoot":4,"../Helper/Globals":10,"../Helper/Init":11}],9:[function(require,module,exports){
+},{"../Classes/Shoot":4,"../Helper/Globals":10,"../Helper/Init":11,"../Helper/TouchButton":13}],9:[function(require,module,exports){
 var game = require('./Init');
 var Explosion = require('../Classes/Explosion');
 var GLOBAL = require('./Globals');
@@ -476,6 +449,33 @@ var MenuButton = function(text, position, clickHandler){
 
 module.exports = MenuButton;
 },{"./Init":11}],13:[function(require,module,exports){
+var game = require('./Init');
+
+var TouchButton = function(position, startFrame, animFrame, clickHandler){
+
+    var button = game.add.sprite(position.x, position.y, 'gamepad');
+    	button.animations.add('clicked', frames, 10, false, false);
+    	button.animations.frame = startFrame;
+        button.anchor.setTo(0.5, 0.5);
+        button.inputEnabled = true;
+        button.fixedToCamera = true;
+
+        // Set handlers
+        button.events.onInputDown.add(function(){
+            button.animations.frame = animFrame;
+            if(clickHandler){
+            	clickHandler(arguments[0], arguments[1]);
+            };
+        }, this);
+		button.events.onInputUp.add(function(){
+			button.animations.frame = startFrame;
+		}, this);
+
+    return button;
+};
+
+module.exports = TouchButton;
+},{"./Init":11}],14:[function(require,module,exports){
 var game = require('../Helper/Init');
 var GLOBAL = require('../Helper/Globals');
 var MenuButton = require('../Helper/MenuButton');
@@ -493,7 +493,7 @@ var finalState = {
 };
 
 module.exports = finalState;
-},{"../Helper/Globals":10,"../Helper/Init":11,"../Helper/MenuButton":12}],14:[function(require,module,exports){
+},{"../Helper/Globals":10,"../Helper/Init":11,"../Helper/MenuButton":12}],15:[function(require,module,exports){
 var game = require('../Helper/Init');
 var MenuButton = require('../Helper/MenuButton');
 var GLOBAL = require('../Helper/Globals');
@@ -538,14 +538,14 @@ var menuState = {
 };
 
 module.exports = menuState;
-},{"../Helper/Globals":10,"../Helper/Init":11,"../Helper/MenuButton":12}],15:[function(require,module,exports){
+},{"../Helper/Globals":10,"../Helper/Init":11,"../Helper/MenuButton":12}],16:[function(require,module,exports){
 // Load helper functions and modules
 var game = require('../Helper/Init');
 var MenuButton = require('../Helper/MenuButton');
 var GLOBAL = require('../Helper/Globals');
 var getRandomInt = require('../Helper/Functions').getRandomInt;
 var collideObjects = require('../Helper/Functions').collideObjects;
-var CONTROLS = require('../Control/Main');
+var CONTROLS = require('../Control/Control');
 
 // Load classes
 var Shoot = require('../Classes/Shoot');
@@ -584,22 +584,24 @@ function create(){
 	game.world.setBounds(0, 0, 1920, 1080);
 
 	// load background image
-	// var background = game.add.sprite(0, 0, 'firstBackgroundLayer');
-	game.stage.backgroundColor = '#ffffff';
+	var background = game.add.sprite(0, 0, 'firstBackgroundLayer');
 
 	// Create and configure player
 	player = new Ship();
 
     // Add proper text output
-	scoreText = game.add.bitmapText(10, 10, 'carrier_command', 'Score: ' + GLOBAL.SCORE, 20);
+	scoreText = game.add.bitmapText(GLOBAL.WIDTH - 10, 10, 'carrier_command', 'Score: ' + GLOBAL.SCORE, 20);
 	scoreText.update = function(){
 		scoreText.text = 'Score: ' + GLOBAL.SCORE;
 	}
-	scoreText.anchor.setTo(0, 0);
-	livesText = game.add.bitmapText(10, 30, 'carrier_command', 'Lives: ' + player.life, 20);
+	scoreText.anchor.setTo(1, 0);
+    scoreText.fixedToCamera = true;
+	livesText = game.add.bitmapText(GLOBAL.WIDTH - 10, 30, 'carrier_command', 'Lives: ' + player.life, 20);
 	livesText.update = function(){
 		livesText.text = 'Lives: ' + player.life;
 	}
+	livesText.anchor.setTo(1, 0);
+    livesText.fixedToCamera = true;
 
     // Add sounds
     fireSound = game.add.audio('fire');
@@ -610,11 +612,6 @@ function create(){
 };
 // Update game state
 function update(){
-
-	// Set player's physic
-    player.body.velocity.x = 0;
-    player.body.velocity.y = 0;
-    player.body.angularVelocity = 0;
 
 	// Check for a player control events
 	control.update();
@@ -636,7 +633,7 @@ function update(){
 };
 
 module.exports = playState;
-},{"../Classes/Asteroid":1,"../Classes/Explosion":2,"../Classes/Ship":3,"../Classes/Shoot":4,"../Control/Main":7,"../Helper/Functions":9,"../Helper/Globals":10,"../Helper/Init":11,"../Helper/MenuButton":12}],16:[function(require,module,exports){
+},{"../Classes/Asteroid":1,"../Classes/Explosion":2,"../Classes/Ship":3,"../Classes/Shoot":4,"../Control/Control":5,"../Helper/Functions":9,"../Helper/Globals":10,"../Helper/Init":11,"../Helper/MenuButton":12}],17:[function(require,module,exports){
 // Load required modules
 var game = require('./Helper/Init');
 var MenuButton = require('./Helper/MenuButton');
@@ -651,4 +648,4 @@ game.state.add('Menu', menuState);
 
 // Start game loading menu
 game.state.start('Menu');
-},{"./Helper/Init":11,"./Helper/MenuButton":12,"./States/FinalState":13,"./States/MenuState":14,"./States/PlayState":15}]},{},[16]);
+},{"./Helper/Init":11,"./Helper/MenuButton":12,"./States/FinalState":14,"./States/MenuState":15,"./States/PlayState":16}]},{},[17]);
