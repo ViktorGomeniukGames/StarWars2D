@@ -12,6 +12,9 @@ var Asteroid = require('../Classes/Asteroid');
 var Ship = require('../Classes/Ship');
 var Explosion = require('../Classes/Explosion');
 
+// Create control manager
+control = new CONTROLS();
+
 // Create playState
 var playState = {preload: preload, create: create, update: update };
 
@@ -25,7 +28,7 @@ function preload(){
     game.load.audio('explosionSound', 'resourses/audio/explosion.wav');
     game.load.audio('fire', 'resourses/audio/laser.wav');
 
-    control = new CONTROLS();
+    
     control.preload();
 
 };

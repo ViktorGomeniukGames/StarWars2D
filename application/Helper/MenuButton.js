@@ -1,10 +1,10 @@
 var game = require('./Init');
 
-var MenuButton = function(text, position, clickHandler){
+var MenuButton = function(text, position, scale, clickHandler){
 	// Create button object
 	button = game.add.sprite(position.x, position.y, 'button');
 	button.anchor.setTo(0.5, 0.5);
-	button.scale.setTo(3, 2);
+	button.scale.setTo(scale.x, scale.y);
 	button.animations.add('clicked', null, 10, false, false);
 	button.inputEnabled = true;
 

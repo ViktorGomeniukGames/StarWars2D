@@ -84,7 +84,7 @@ var Shoot = require('../Classes/Shoot');
 
 function Ship(){
 	// Create and configure ship
-	ship = game.add.sprite(960, 540, 'ship');
+	ship = game.add.sprite(GLOBAL.WIDTH / 2, GLOBAL.HEIGHT / 2, 'ship');
 	ship.anchor.setTo(0.5, 0.5);
 	ship.life = 3;
 
@@ -286,8 +286,7 @@ var Touch = function(){
     var __FIRE = false;
 
     var create = function(player){
-        var that = this;
-        // Create fireButton
+
         var fireButton = new TouchButton(
             {
                 x: GLOBAL.WIDTH - 60,
@@ -295,18 +294,12 @@ var Touch = function(){
             }, 5, 5, function(){player.fire()}, 1, 1);
         // Create exitButton
         var exitButton = new TouchButton({
-            x: 60,
-            y: 60
-        }, 9, 9, function(){
-            game.state.start('Final');
-        }, 1, 1);
-        var pad = new TouchButton({
-            x: 90, y: GLOBAL.HEIGHT - 90
-        }, 8, 8, padControl, 1.5, 1.5);
-    };
-    var padControl = function(button, point){
-        console.log(button);
-        console.log(point);
+                x: 60,
+                y: 60
+            }, 9, 9, function(){
+                game.state.start('Final');
+            }, 1, 1);
+
     };
 
     var update = function(){
@@ -318,41 +311,34 @@ var Touch = function(){
         // switch(__LEFT, __FORWARD, __RIGHT){
         //     // Rotate left
         //     case true, false, false:
-        //         player.rotation -= 0.05;
+        //         player.turnLeft();
 
         //     // Rotate right
         //     case false, false, true:
-        //         player.rotation += 0.05;
+        //         player.turnRight();
 
         //     // Move forward
         //     case false, true, false:
-        //         player.animations.next(1);
-        //         game.physics.arcade.velocityFromAngle(player.angle, 200, player.body.velocity);
+        //         player.moveForward();
 
         //     // Otherwise - stop animation and do nothing
         //     default:
-        //         player.animations.previous(1);
-        //         // player.body.angularVelocity = 0;
+        //         player.stopMoving();
 
         // };
         // // Fire
         // if(__FIRE){
-        //     var fire = new Date().getTime() / 1000;
-        //     if((fire - GLOBAL.LAST_SHOOT) > 0.25){
-        //         GLOBAL.LAST_SHOOT = fire;
-        //         GLOBAL.SHOOTS.push(new Shoot());
-        //         fireSound.play();
-        //     };
+        //     player.fire();
         // };
     };
 
     var preload = function(){
-        // // Preload buttons
-        // game.load.spritesheet('horizontalButton', 'resourses/images/joystick/horizontal.png', 64, 64);
-        // game.load.spritesheet('verticalButton', 'resourses/images/joystick/vertical.png', 96, 64);
-        // game.load.spritesheet('diagonalButton', 'resourses/images/joystick/diagonal.png', 64, 64);
-        // game.load.spritesheet('fireButton', 'resourses/images/joystick/round.png', 96, 96);
-        game.load.spritesheet('gamepad', 'resourses/images/joystick/xbox360.png', 102.4, 102.5);
+        // Preload buttons
+        game.load.spritesheet('horizontalButton', 'resourses/joystick/horizontal.png', 64, 64);
+        game.load.spritesheet('verticalButton', 'resourses/joystick/vertical.png', 96, 64);
+        game.load.spritesheet('diagonalButton', 'resourses/joystick/diagonal.png', 64, 64);
+        game.load.spritesheet('fireButton', 'resourses/joystick/round.png', 96, 96);
+        game.load.spritesheet('gamepad', 'resourses/joystick/xbox360.png', 102.4, 102.5);
     };
 
     return {
@@ -403,7 +389,8 @@ var GLOBAL = {
 	SHOOTS: [],
 	ROCKS: [],
 	LAST_SHOOT : new Date().getTime() / 1000,
-	SCORE: 0
+	SCORE: 0,
+	SOUND: 3
 };
 
 module.exports = GLOBAL;
@@ -417,11 +404,11 @@ module.exports = game;
 },{"./Globals":10}],12:[function(require,module,exports){
 var game = require('./Init');
 
-var MenuButton = function(text, position, clickHandler){
+var MenuButton = function(text, position, scale, clickHandler){
 	// Create button object
 	button = game.add.sprite(position.x, position.y, 'button');
 	button.anchor.setTo(0.5, 0.5);
-	button.scale.setTo(3, 2);
+	button.scale.setTo(scale.x, scale.y);
 	button.animations.add('clicked', null, 10, false, false);
 	button.inputEnabled = true;
 
@@ -484,13 +471,41 @@ var MenuButton = require('../Helper/MenuButton');
 
 var finalState = {
 	create: function(){
-		finalText = game.add.bitmapText(GLOBAL.WIDTH / 2, GLOBAL.HEIGHT / 3, 'carrier_command', "You earned: " + GLOBAL.SCORE, 20);
-		finalText.anchor.setTo(0.5, 0.5);
-		new MenuButton('Try again', {x: GLOBAL.WIDTH / 2, y: GLOBAL.HEIGHT * 2 / 3},
+		var finalText = game.add.bitmapText(GLOBAL.WIDTH / 2, GLOBAL.HEIGHT / 3, 'carrier_command', "You earned: " + GLOBAL.SCORE, 20);
+			finalText.anchor.setTo(0.5, 0.5);
+
+		// Add final exit button
+		new MenuButton(
+			'Try again', // Text
+			{x: GLOBAL.WIDTH / 2, y: GLOBAL.HEIGHT * 2 / 3}, // Position
+			{x: 3, y: 2}, // Scale
+			// Handler
 			function(){
 				game.state.start('Menu');
 			}
 		);
+
+		// Add volume button and volume icon
+		var volumeButton = new MenuButton(
+				'', // Text
+				{x: 50, y: 50}, // Scale
+				{x: 0.8, y: 1.5}, // Position
+				// Handler
+				function(){
+					if(!(GLOBAL.SOUND)){
+						GLOBAL.SOUND = 3;
+					} else {
+						GLOBAL.SOUND--;
+					};
+				}
+			);
+		volumeIcon = game.add.sprite(50, 50, 'volume');
+			volumeIcon.anchor.setTo(0.5, 0.5);
+			volumeIcon.scale.setTo(2, 2);
+	},
+	update: function(){
+		game.sound.volume = GLOBAL.SOUND / 3;
+		volumeIcon.animations.frame = GLOBAL.SOUND;
 	}
 };
 
@@ -508,30 +523,58 @@ var menuState = {
 		game.load.bitmapFont('carrier_command', 'resourses/fonts/carrier_command.png', 'resourses/fonts/carrier_command.xml');
 		game.load.audio('explosion', 'resourses/audio/explosion.wav');
 		game.load.audio('soundtrack', 'resourses/audio/soundtrack.mp3');
+		game.load.spritesheet('volume', 'resourses/images/volume.png', 25, 25);
 	},
 	create: function(){
 
 		// Add soundtrack
 		var soundtrack = game.add.audio('soundtrack');
-		soundtrack.play();
+			soundtrack.play();
 
 		// Create logo and set its position
-		logo = game.add.sprite(GLOBAL.WIDTH / 2, GLOBAL.HEIGHT / 4, 'logo');
-		logo.scale.setTo(0.25, 0.25);
-		logo.anchor.setTo(0.5, 0.5);
+		var logo = game.add.sprite(GLOBAL.WIDTH / 2, GLOBAL.HEIGHT / 4, 'logo');
+			logo.scale.setTo(0.25, 0.25);
+			logo.anchor.setTo(0.5, 0.5);
 
 		// Create menu
-		start = new MenuButton('Play', {x: GLOBAL.WIDTH / 2, y: GLOBAL.HEIGHT / 3 + 100},
-			function(){
-				// console.log(game.state.states.Menu.state.setCurrentState('Game'));
-				game.state.states.Menu.state.pause()
-				game.state.start('Game');
-			}
-		);
-		text = "To accelerate use 'W'\n\n" + "To counter-clockwise use 'A'\n\n" + "To clockwise use 'D'\n\n" + "To shoot use 'Space'"
-		hintText = game.add.bitmapText(GLOBAL.WIDTH / 2 + 50, GLOBAL.HEIGHT * 3 / 4,
-			'carrier_command', text, 20);
-		hintText.anchor.setTo(0.5, 0.5);
+		var start = new MenuButton(
+				'Play', // Text
+				{x: GLOBAL.WIDTH / 2, y: GLOBAL.HEIGHT / 3 + 100}, // Position
+				{x: 3, y: 2}, // Scale
+				// Handler
+				function(){
+					game.state.states.Menu.state.pause()
+					game.state.start('Game');
+				}
+			);
+
+		// Add volume button and volume icon
+		var volumeButton = new MenuButton(
+				'', // Text
+				{x: 50, y: 50}, // Scale
+				{x: 0.8, y: 1.5}, // Position
+				// Handler
+				function(){
+					if(!(GLOBAL.SOUND)){
+						GLOBAL.SOUND = 3;
+					} else {
+						GLOBAL.SOUND--;
+					};
+				}
+			);
+		volumeIcon = game.add.sprite(50, 50, 'volume');
+			volumeIcon.anchor.setTo(0.5, 0.5);
+			volumeIcon.scale.setTo(2, 2);
+			// volumeIcon.animations.frame = 3;
+
+		var text = "To accelerate use 'W'\n\n" + "To counter-clockwise use 'A'\n\n" + "To clockwise use 'D'\n\n" + "To shoot use 'Space'"
+		var hintText = game.add.bitmapText(GLOBAL.WIDTH / 2 + 50, GLOBAL.HEIGHT * 3 / 4,
+				'carrier_command', text, 20);
+			hintText.anchor.setTo(0.5, 0.5);
+	},
+	update: function(){
+		game.sound.volume = GLOBAL.SOUND / 3;
+		volumeIcon.animations.frame = GLOBAL.SOUND;
 	},
 	shutdown: function(game){
 		// Stop playing soundtrack on shutdown
@@ -555,6 +598,9 @@ var Asteroid = require('../Classes/Asteroid');
 var Ship = require('../Classes/Ship');
 var Explosion = require('../Classes/Explosion');
 
+// Create control manager
+control = new CONTROLS();
+
 // Create playState
 var playState = {preload: preload, create: create, update: update };
 
@@ -568,7 +614,7 @@ function preload(){
     game.load.audio('explosionSound', 'resourses/audio/explosion.wav');
     game.load.audio('fire', 'resourses/audio/laser.wav');
 
-    control = new CONTROLS();
+    
     control.preload();
 
 };

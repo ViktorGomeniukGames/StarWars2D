@@ -6,7 +6,8 @@ var GLOBAL = {
 	SHOOTS: [],
 	ROCKS: [],
 	LAST_SHOOT : new Date().getTime() / 1000,
-	SCORE: 0
+	SCORE: 0,
+	SOUND: 3
 };
 
 module.exports = GLOBAL;

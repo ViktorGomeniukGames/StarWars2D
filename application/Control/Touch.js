@@ -13,8 +13,7 @@ var Touch = function(){
     var __FIRE = false;
 
     var create = function(player){
-        var that = this;
-        // Create fireButton
+
         var fireButton = new TouchButton(
             {
                 x: GLOBAL.WIDTH - 60,
@@ -22,18 +21,12 @@ var Touch = function(){
             }, 5, 5, function(){player.fire()}, 1, 1);
         // Create exitButton
         var exitButton = new TouchButton({
-            x: 60,
-            y: 60
-        }, 9, 9, function(){
-            game.state.start('Final');
-        }, 1, 1);
-        var pad = new TouchButton({
-            x: 90, y: GLOBAL.HEIGHT - 90
-        }, 8, 8, padControl, 1.5, 1.5);
-    };
-    var padControl = function(button, point){
-        console.log(button);
-        console.log(point);
+                x: 60,
+                y: 60
+            }, 9, 9, function(){
+                game.state.start('Final');
+            }, 1, 1);
+
     };
 
     var update = function(){
@@ -45,41 +38,34 @@ var Touch = function(){
         // switch(__LEFT, __FORWARD, __RIGHT){
         //     // Rotate left
         //     case true, false, false:
-        //         player.rotation -= 0.05;
+        //         player.turnLeft();
 
         //     // Rotate right
         //     case false, false, true:
-        //         player.rotation += 0.05;
+        //         player.turnRight();
 
         //     // Move forward
         //     case false, true, false:
-        //         player.animations.next(1);
-        //         game.physics.arcade.velocityFromAngle(player.angle, 200, player.body.velocity);
+        //         player.moveForward();
 
         //     // Otherwise - stop animation and do nothing
         //     default:
-        //         player.animations.previous(1);
-        //         // player.body.angularVelocity = 0;
+        //         player.stopMoving();
 
         // };
         // // Fire
         // if(__FIRE){
-        //     var fire = new Date().getTime() / 1000;
-        //     if((fire - GLOBAL.LAST_SHOOT) > 0.25){
-        //         GLOBAL.LAST_SHOOT = fire;
-        //         GLOBAL.SHOOTS.push(new Shoot());
-        //         fireSound.play();
-        //     };
+        //     player.fire();
         // };
     };
 
     var preload = function(){
-        // // Preload buttons
-        // game.load.spritesheet('horizontalButton', 'resourses/images/joystick/horizontal.png', 64, 64);
-        // game.load.spritesheet('verticalButton', 'resourses/images/joystick/vertical.png', 96, 64);
-        // game.load.spritesheet('diagonalButton', 'resourses/images/joystick/diagonal.png', 64, 64);
-        // game.load.spritesheet('fireButton', 'resourses/images/joystick/round.png', 96, 96);
-        game.load.spritesheet('gamepad', 'resourses/images/joystick/xbox360.png', 102.4, 102.5);
+        // Preload buttons
+        game.load.spritesheet('horizontalButton', 'resourses/joystick/horizontal.png', 64, 64);
+        game.load.spritesheet('verticalButton', 'resourses/joystick/vertical.png', 96, 64);
+        game.load.spritesheet('diagonalButton', 'resourses/joystick/diagonal.png', 64, 64);
+        game.load.spritesheet('fireButton', 'resourses/joystick/round.png', 96, 96);
+        game.load.spritesheet('gamepad', 'resourses/joystick/xbox360.png', 102.4, 102.5);
     };
 
     return {
