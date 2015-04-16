@@ -275,15 +275,18 @@ var game = require('../Helper/Init');
 var GLOBAL = require('../Helper/Globals');
 var Shoot = require('../Classes/Shoot');
 var TouchButton = require('../Helper/TouchButton');
+var Pad = require('../Helper/Pad');
 
 
 var Touch = function(){
 
     // Set game properties
-    var __FORWARD = false;
-    var __LEFT = false;
-    var __RIGHT = false;
-    var __FIRE = false;
+    var state = {
+        __FORWARD: false,
+        __LEFT: false,
+        __RIGHT: false,
+        __FIRE: false
+    };
 
     var create = function(player){
 
@@ -292,7 +295,7 @@ var Touch = function(){
                 x: GLOBAL.WIDTH - 60,
                 y: GLOBAL.HEIGHT - 50
             }, 5, 5, function(){player.fire()}, 1, 1);
-        // Create exitButton
+
         var exitButton = new TouchButton({
                 x: 60,
                 y: 60
@@ -300,45 +303,33 @@ var Touch = function(){
                 game.state.start('Final');
             }, 1, 1);
 
+        new Pad({x: 100, y: GLOBAL.HEIGHT - 100}, state);
+
     };
 
     var update = function(){
-        // player.body.velocity.x = 0;
-        // player.body.velocity.y = 0;
-        // player.body.angularVelocity = 0;
 
-        // // Moving combo
-        // switch(__LEFT, __FORWARD, __RIGHT){
-        //     // Rotate left
-        //     case true, false, false:
-        //         player.turnLeft();
+        if(state.__RIGHT){
+            player.turnRight();
+        } else if (state.__LEFT) {
+            player.turnLeft();
+        }
+        if(state.__FORWARD){
+            player.moveForward();
+        } else {
+            player.stopMoving();
+        }
 
-        //     // Rotate right
-        //     case false, false, true:
-        //         player.turnRight();
-
-        //     // Move forward
-        //     case false, true, false:
-        //         player.moveForward();
-
-        //     // Otherwise - stop animation and do nothing
-        //     default:
-        //         player.stopMoving();
-
-        // };
-        // // Fire
-        // if(__FIRE){
-        //     player.fire();
-        // };
+        // Fire
+        if(state.__FIRE){
+            player.fire();
+        };
     };
 
     var preload = function(){
         // Preload buttons
-        game.load.spritesheet('horizontalButton', 'resourses/joystick/horizontal.png', 64, 64);
-        game.load.spritesheet('verticalButton', 'resourses/joystick/vertical.png', 96, 64);
-        game.load.spritesheet('diagonalButton', 'resourses/joystick/diagonal.png', 64, 64);
-        game.load.spritesheet('fireButton', 'resourses/joystick/round.png', 96, 96);
-        game.load.spritesheet('gamepad', 'resourses/joystick/xbox360.png', 102.4, 102.5);
+        game.load.spritesheet('gamepad', 'resourses/images/xbox360.png', 102.4, 102.5);
+        game.load.spritesheet('stick', 'resourses/images/xbox360.png', 34.13, 34.16);
     };
 
     return {
@@ -349,7 +340,7 @@ var Touch = function(){
 };
 
 module.exports = Touch;
-},{"../Classes/Shoot":4,"../Helper/Globals":10,"../Helper/Init":11,"../Helper/TouchButton":13}],9:[function(require,module,exports){
+},{"../Classes/Shoot":4,"../Helper/Globals":10,"../Helper/Init":11,"../Helper/Pad":13,"../Helper/TouchButton":14}],9:[function(require,module,exports){
 var game = require('./Init');
 var Explosion = require('../Classes/Explosion');
 var GLOBAL = require('./Globals');
@@ -439,6 +430,124 @@ module.exports = MenuButton;
 },{"./Init":11}],13:[function(require,module,exports){
 var game = require('./Init');
 
+
+var Pad = function(startPosition, context){
+
+	// Set center of pad
+	var center = game.add.button(startPosition.x, startPosition.y, 'stick', null, this, 70, 70, 70, 70);
+		center.fixedToCamera = true;
+		center.anchor.setTo(0.5, 0.5);
+
+	// Set left side
+	var centerLeft = game.add.button(startPosition.x - 34.13, startPosition.y, 'stick', null, this, 111, 69, 111, 69);
+		centerLeft.fixedToCamera = true;
+		centerLeft.anchor.setTo(0.5, 0.5);
+
+		leftActionStart = function(){
+            center.animations.frame = 112;
+            context.__LEFT = true;
+        };
+        leftActionStop = function(){
+			center.animations.frame = 70;
+			context.__LEFT = false;
+		};
+        // Set handlers
+        centerLeft.events.onInputDown.add(leftActionStart, this);
+		centerLeft.events.onInputUp.add(leftActionStop, this);
+		centerLeft.events.onInputOver.add(leftActionStart, this);
+		centerLeft.events.onInputOut.add(leftActionStop, this);
+
+	// Set right side
+	var centerRight = game.add.button(startPosition.x + 34.13, startPosition.y, 'stick', null, this, 68, 71, 68, 71);
+		centerRight.fixedToCamera = true;
+		centerRight.anchor.setTo(0.5, 0.5);
+
+		rightActionStart = function(){
+            center.animations.frame = 67;
+            context.__RIGHT = true;
+        };
+        rightActionStop = function(){
+			center.animations.frame = 70;
+			context.__RIGHT = false;
+		};
+		// Set handlers
+        centerRight.events.onInputDown.add(rightActionStart, this);
+		centerRight.events.onInputUp.add(rightActionStop, this);
+		centerRight.events.onInputOver.add(rightActionStart, this);
+		centerRight.events.onInputOut.add(rightActionStop, this);
+
+	// Set top side
+	var top = game.add.button(startPosition.x, startPosition.y - 34.16, 'stick', null, this, 13, 55, 13, 55);
+		top.fixedToCamera = true;
+		top.anchor.setTo(0.5, 0.5);
+
+		topActionStart = function(){
+            center.animations.frame = 28;
+            context.__FORWARD = true;
+        };
+        topActionStop = function(){
+			center.animations.frame = 70;
+			context.__FORWARD = false;
+		};
+		// Set handlers
+        top.events.onInputDown.add(topActionStart, this);
+		top.events.onInputUp.add(topActionStop, this);
+		top.events.onInputOver.add(topActionStart, this);
+		top.events.onInputOut.add(topActionStop, this);
+
+	// Set bottom side
+	var bottom = game.add.button(startPosition.x, startPosition.y + 34.16, 'stick', null, this, 172, 85, 172, 85);
+		bottom.fixedToCamera = true;
+		bottom.anchor.setTo(0.5, 0.5);
+
+		bottomActionStart = function(){
+            center.animations.frame = 157;
+        };
+        bottomActionStop = function(){
+			center.animations.frame = 70;
+		};
+		// Set handlers
+        bottom.events.onInputDown.add(bottomActionStart, this);
+		bottom.events.onInputUp.add(bottomActionStop, this);
+		bottom.events.onInputOver.add(bottomActionStart, this);
+		bottom.events.onInputOut.add(bottomActionStop, this);
+
+	// Add unused sides
+	var topLeft = game.add.button(startPosition.x - 34.13, startPosition.y - 34.16, 'stick', null, this, 54, 54, 54, 54);
+		topLeft.fixedToCamera = true;
+		topLeft.anchor.setTo(0.5, 0.5);
+
+	var bottomLeft = game.add.button(startPosition.x - 34.13, startPosition.y + 34.16, 'stick', null, this, 84, 84, 84, 84);
+		bottomLeft.fixedToCamera = true;
+		bottomLeft.anchor.setTo(0.5, 0.5);
+
+	var topRight = game.add.button(startPosition.x + 34.13, startPosition.y - 34.16, 'stick', null, this, 56, 56, 56, 56);
+		topRight.fixedToCamera = true;
+		topRight.anchor.setTo(0.5, 0.5);
+
+	var bottomRight = game.add.button(startPosition.x + 34.13, startPosition.y + 34.16, 'stick', null, this, 86, 86, 86, 86);
+		bottomRight.fixedToCamera = true;
+		bottomRight.anchor.setTo(0.5, 0.5);
+
+	// var pad = [
+ //    	topLeft,
+ //    	top,
+ //    	topRight,
+ //    	centerLeft,
+ //    	center,
+ //    	centerRight,
+ //    	bottomLeft,
+ //    	bottom,
+ //    	bottomRight
+ //    ];
+
+    return true;
+};
+
+module.exports = Pad;
+},{"./Init":11}],14:[function(require,module,exports){
+var game = require('./Init');
+
 var TouchButton = function(position, startFrame, animFrame, clickHandler, scaleX, scaleY){
 
     var button = game.add.sprite(position.x, position.y, 'gamepad');
@@ -464,7 +573,7 @@ var TouchButton = function(position, startFrame, animFrame, clickHandler, scaleX
 };
 
 module.exports = TouchButton;
-},{"./Init":11}],14:[function(require,module,exports){
+},{"./Init":11}],15:[function(require,module,exports){
 var game = require('../Helper/Init');
 var GLOBAL = require('../Helper/Globals');
 var MenuButton = require('../Helper/MenuButton');
@@ -510,7 +619,7 @@ var finalState = {
 };
 
 module.exports = finalState;
-},{"../Helper/Globals":10,"../Helper/Init":11,"../Helper/MenuButton":12}],15:[function(require,module,exports){
+},{"../Helper/Globals":10,"../Helper/Init":11,"../Helper/MenuButton":12}],16:[function(require,module,exports){
 var game = require('../Helper/Init');
 var MenuButton = require('../Helper/MenuButton');
 var GLOBAL = require('../Helper/Globals');
@@ -583,7 +692,7 @@ var menuState = {
 };
 
 module.exports = menuState;
-},{"../Helper/Globals":10,"../Helper/Init":11,"../Helper/MenuButton":12}],16:[function(require,module,exports){
+},{"../Helper/Globals":10,"../Helper/Init":11,"../Helper/MenuButton":12}],17:[function(require,module,exports){
 // Load helper functions and modules
 var game = require('../Helper/Init');
 var MenuButton = require('../Helper/MenuButton');
@@ -681,7 +790,7 @@ function update(){
 };
 
 module.exports = playState;
-},{"../Classes/Asteroid":1,"../Classes/Explosion":2,"../Classes/Ship":3,"../Classes/Shoot":4,"../Control/Control":5,"../Helper/Functions":9,"../Helper/Globals":10,"../Helper/Init":11,"../Helper/MenuButton":12}],17:[function(require,module,exports){
+},{"../Classes/Asteroid":1,"../Classes/Explosion":2,"../Classes/Ship":3,"../Classes/Shoot":4,"../Control/Control":5,"../Helper/Functions":9,"../Helper/Globals":10,"../Helper/Init":11,"../Helper/MenuButton":12}],18:[function(require,module,exports){
 // Load required modules
 var game = require('./Helper/Init');
 var MenuButton = require('./Helper/MenuButton');
@@ -696,4 +805,4 @@ game.state.add('Menu', menuState);
 
 // Start game loading menu
 game.state.start('Menu');
-},{"./Helper/Init":11,"./Helper/MenuButton":12,"./States/FinalState":14,"./States/MenuState":15,"./States/PlayState":16}]},{},[17]);
+},{"./Helper/Init":11,"./Helper/MenuButton":12,"./States/FinalState":15,"./States/MenuState":16,"./States/PlayState":17}]},{},[18]);
