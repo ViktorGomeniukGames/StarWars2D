@@ -36,6 +36,19 @@ function Ship(){
             fireSound.play();
         };
 	};
+	// ship.moveToAngle = function(toAngle){
+	// 	if (toAngle == this.angle){
+	// 		this.moveForward();
+	// 	} else {
+	// 		if(this.angle < 0){
+	// 			if(toAngle < 0){
+
+	// 			} else {};
+	// 		} else {
+
+	// 		};
+	// 	};
+	// };
 	ship.moveForward = function(){
 		this.animations.next(1);
         game.physics.arcade.velocityFromAngle(this.angle, 200, this.body.velocity);

@@ -7,8 +7,8 @@ function Explosion(positionX, positionY){
 	var explosionSound = game.add.audio('explosionSound');
 
 	var explosion = game.add.sprite(positionX, positionY, 'explosion');
-	explosion.anchor.setTo(0.5, 0.5);
-	explosion.animations.add('fire', null);
+		explosion.anchor.setTo(0.5, 0.5);
+		explosion.animations.add('fire', null);
 	explosion.play = function(){
 		explosion.animations.play('fire', 60, false, true);
 		explosionSound.play();

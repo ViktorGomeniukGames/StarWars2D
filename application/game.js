@@ -36,8 +36,8 @@ var Asteroid = function(){
 
 	// Set random velocity
 	asteroid.velocity = {
-		x: getRandomInt(-3, 3) * GLOBAL.LEVEL,
-		y: getRandomInt(-3, 3) * GLOBAL.LEVEL
+		x: getRandomInt(-3, 3),
+		y: getRandomInt(-3, 3)
 	};
 
 	// Update position of asteroid
@@ -65,8 +65,8 @@ function Explosion(positionX, positionY){
 	var explosionSound = game.add.audio('explosionSound');
 
 	var explosion = game.add.sprite(positionX, positionY, 'explosion');
-	explosion.anchor.setTo(0.5, 0.5);
-	explosion.animations.add('fire', null);
+		explosion.anchor.setTo(0.5, 0.5);
+		explosion.animations.add('fire', null);
 	explosion.play = function(){
 		explosion.animations.play('fire', 60, false, true);
 		explosionSound.play();
@@ -114,6 +114,19 @@ function Ship(){
             fireSound.play();
         };
 	};
+	// ship.moveToAngle = function(toAngle){
+	// 	if (toAngle == this.angle){
+	// 		this.moveForward();
+	// 	} else {
+	// 		if(this.angle < 0){
+	// 			if(toAngle < 0){
+
+	// 			} else {};
+	// 		} else {
+
+	// 		};
+	// 	};
+	// };
 	ship.moveForward = function(){
 		this.animations.next(1);
         game.physics.arcade.velocityFromAngle(this.angle, 200, this.body.velocity);
@@ -180,17 +193,20 @@ var Shoot = function(){
 
 module.exports = Shoot;
 },{"../Helper/Globals":10,"../Helper/Init":11}],5:[function(require,module,exports){
-// var game = require('../Helper/Init');
-// var GLOBAL = require('../Helper/Globals');
-// var Shoot = require('../Classes/Shoot');
+var game = require('../Helper/Init');
+var GLOBAL = require('../Helper/Globals');
 var Keyboard = require('./Keyboard');
 var Gamepad = require('./Gamepad');
 var Touch = require('./Touch');
 
 
 var CONTROLS = function(player){
-	// var controlMethod = new Keyboard(player);
-    var controlMethod = new Touch(player);
+	if(game.device.touch){
+		var controlMethod = new Touch(player);
+	} else {
+		var controlMethod = new Keyboard(player);
+	};
+    
     return {
     	preload: controlMethod.preload,
     	create: controlMethod.create,
@@ -199,7 +215,7 @@ var CONTROLS = function(player){
 };
 
 module.exports = CONTROLS;
-},{"./Gamepad":6,"./Keyboard":7,"./Touch":8}],6:[function(require,module,exports){
+},{"../Helper/Globals":10,"../Helper/Init":11,"./Gamepad":6,"./Keyboard":7,"./Touch":8}],6:[function(require,module,exports){
 var game = require('../Helper/Init');
 
 
@@ -293,7 +309,7 @@ var Touch = function(){
         var fireButton = new TouchButton(
             {
                 x: GLOBAL.WIDTH - 60,
-                y: GLOBAL.HEIGHT - 50
+                y: GLOBAL.HEIGHT - 60
             }, 5, 5, function(){player.fire()}, 1, 1);
 
         var exitButton = new TouchButton({
@@ -303,7 +319,7 @@ var Touch = function(){
                 game.state.start('Final');
             }, 1, 1);
 
-        new Pad({x: 100, y: GLOBAL.HEIGHT - 100}, state);
+        new Pad({x: 60, y: GLOBAL.HEIGHT - 60}, state);
 
     };
 
@@ -375,7 +391,7 @@ module.exports = Functions;
 var GLOBAL = {
 	WIDTH: window.innerWidth - 20,
 	HEIGHT: window.innerHeight - 20,
-	LEVEL: 1,
+	LEVEL: 5,
 	COMPLEXITY: 3,
 	SHOOTS: [],
 	ROCKS: [],
@@ -391,6 +407,7 @@ var GLOBAL = require('./Globals');
 var game = new Phaser.Game(
 	GLOBAL.WIDTH, GLOBAL.HEIGHT, Phaser.AUTO, ''
 );
+
 module.exports = game;
 },{"./Globals":10}],12:[function(require,module,exports){
 var game = require('./Init');
@@ -443,11 +460,11 @@ var Pad = function(startPosition, context){
 		centerLeft.fixedToCamera = true;
 		centerLeft.anchor.setTo(0.5, 0.5);
 
-		leftActionStart = function(){
+		var leftActionStart = function(){
             center.animations.frame = 112;
             context.__LEFT = true;
         };
-        leftActionStop = function(){
+        var leftActionStop = function(){
 			center.animations.frame = 70;
 			context.__LEFT = false;
 		};
@@ -462,11 +479,11 @@ var Pad = function(startPosition, context){
 		centerRight.fixedToCamera = true;
 		centerRight.anchor.setTo(0.5, 0.5);
 
-		rightActionStart = function(){
+		var rightActionStart = function(){
             center.animations.frame = 67;
             context.__RIGHT = true;
         };
-        rightActionStop = function(){
+        var rightActionStop = function(){
 			center.animations.frame = 70;
 			context.__RIGHT = false;
 		};
@@ -481,11 +498,11 @@ var Pad = function(startPosition, context){
 		top.fixedToCamera = true;
 		top.anchor.setTo(0.5, 0.5);
 
-		topActionStart = function(){
+		var topActionStart = function(){
             center.animations.frame = 28;
             context.__FORWARD = true;
         };
-        topActionStop = function(){
+        var topActionStop = function(){
 			center.animations.frame = 70;
 			context.__FORWARD = false;
 		};
@@ -496,15 +513,15 @@ var Pad = function(startPosition, context){
 		top.events.onInputOut.add(topActionStop, this);
 
 	// Set bottom side
-	var bottom = game.add.button(startPosition.x, startPosition.y + 34.16, 'stick', null, this, 172, 85, 172, 85);
+	var bottom = game.add.button(startPosition.x, startPosition.y + 34.16, 'stick', null, this, 85, 85, 85, 85);
 		bottom.fixedToCamera = true;
 		bottom.anchor.setTo(0.5, 0.5);
 
-		bottomActionStart = function(){
-            center.animations.frame = 157;
+		var bottomActionStart = function(){
+            // center.animations.frame = 157;
         };
-        bottomActionStop = function(){
-			center.animations.frame = 70;
+        var bottomActionStop = function(){
+			// center.animations.frame = 70;
 		};
 		// Set handlers
         bottom.events.onInputDown.add(bottomActionStart, this);
@@ -517,6 +534,20 @@ var Pad = function(startPosition, context){
 		topLeft.fixedToCamera = true;
 		topLeft.anchor.setTo(0.5, 0.5);
 
+		var topLeftActionStart = function(){
+			context.__FORWARD = true;
+			context.__LEFT = true;
+        };
+        var topLeftActionStop = function(){
+        	context.__FORWARD = false;
+        	context.__LEFT = false;
+		};
+		// Set handlers
+        topLeft.events.onInputDown.add(topLeftActionStart, this);
+		topLeft.events.onInputUp.add(topLeftActionStop, this);
+		topLeft.events.onInputOver.add(topLeftActionStart, this);
+		topLeft.events.onInputOut.add(topLeftActionStop, this);
+
 	var bottomLeft = game.add.button(startPosition.x - 34.13, startPosition.y + 34.16, 'stick', null, this, 84, 84, 84, 84);
 		bottomLeft.fixedToCamera = true;
 		bottomLeft.anchor.setTo(0.5, 0.5);
@@ -525,21 +556,23 @@ var Pad = function(startPosition, context){
 		topRight.fixedToCamera = true;
 		topRight.anchor.setTo(0.5, 0.5);
 
+		var topRightActionStart = function(){
+			context.__FORWARD = true;
+			context.__RIGHT = true;
+        };
+        var topRightActionStop = function(){
+        	context.__FORWARD = false;
+        	context.__RIGHT = false;
+		};
+		// Set handlers
+        topRight.events.onInputDown.add(topRightActionStart, this);
+		topRight.events.onInputUp.add(topRightActionStop, this);
+		topRight.events.onInputOver.add(topRightActionStart, this);
+		topRight.events.onInputOut.add(topRightActionStop, this);
+
 	var bottomRight = game.add.button(startPosition.x + 34.13, startPosition.y + 34.16, 'stick', null, this, 86, 86, 86, 86);
 		bottomRight.fixedToCamera = true;
 		bottomRight.anchor.setTo(0.5, 0.5);
-
-	// var pad = [
- //    	topLeft,
- //    	top,
- //    	topRight,
- //    	centerLeft,
- //    	center,
- //    	centerRight,
- //    	bottomLeft,
- //    	bottom,
- //    	bottomRight
- //    ];
 
     return true;
 };
@@ -623,6 +656,8 @@ module.exports = finalState;
 var game = require('../Helper/Init');
 var MenuButton = require('../Helper/MenuButton');
 var GLOBAL = require('../Helper/Globals');
+var CONTROLS = require('../Control/Control');
+
 
 
 var menuState = {
@@ -652,7 +687,7 @@ var menuState = {
 				{x: 3, y: 2}, // Scale
 				// Handler
 				function(){
-					game.state.states.Menu.state.pause()
+					game.state.states.Menu.state.pause();
 					game.state.start('Game');
 				}
 			);
@@ -674,12 +709,30 @@ var menuState = {
 		volumeIcon = game.add.sprite(50, 50, 'volume');
 			volumeIcon.anchor.setTo(0.5, 0.5);
 			volumeIcon.scale.setTo(2, 2);
-			// volumeIcon.animations.frame = 3;
 
-		var text = "To accelerate use 'W'\n\n" + "To counter-clockwise use 'A'\n\n" + "To clockwise use 'D'\n\n" + "To shoot use 'Space'"
-		var hintText = game.add.bitmapText(GLOBAL.WIDTH / 2 + 50, GLOBAL.HEIGHT * 3 / 4,
+		// Define device type and fit text properly
+		if(game.device.touch){
+			var text = "To control ship use pad\n\n" + "To shoot use 'X' button"
+
+			// Define screen size
+			if(window.innerWidth < 610 || window.innerHeight < 530){
+				var size = 10;
+				var height = GLOBAL.HEIGHT - 20;
+			} else {
+				var size = 20;
+				var height = GLOBAL.HEIGHT * 3 / 4;
+			};
+			var hintText = game.add.bitmapText(GLOBAL.WIDTH / 2, height,
+				'carrier_command', text, size);
+		} else {
+			var text = "To accelerate use 'W'\n\n" + "To turn use 'A' and 'D'\n\n" + "To shoot use 'Space'\n\n" + "To exit use ESC"
+			var hintText = game.add.bitmapText(GLOBAL.WIDTH / 2 + 50, GLOBAL.HEIGHT * 3 / 4,
 				'carrier_command', text, 20);
-			hintText.anchor.setTo(0.5, 0.5);
+		};
+		hintText.anchor.setTo(0.5, 0.5);
+
+		// Create control manager
+		control = new CONTROLS();
 	},
 	update: function(){
 		game.sound.volume = GLOBAL.SOUND / 3;
@@ -692,7 +745,7 @@ var menuState = {
 };
 
 module.exports = menuState;
-},{"../Helper/Globals":10,"../Helper/Init":11,"../Helper/MenuButton":12}],17:[function(require,module,exports){
+},{"../Control/Control":5,"../Helper/Globals":10,"../Helper/Init":11,"../Helper/MenuButton":12}],17:[function(require,module,exports){
 // Load helper functions and modules
 var game = require('../Helper/Init');
 var MenuButton = require('../Helper/MenuButton');
@@ -707,11 +760,12 @@ var Asteroid = require('../Classes/Asteroid');
 var Ship = require('../Classes/Ship');
 var Explosion = require('../Classes/Explosion');
 
-// Create control manager
-control = new CONTROLS();
-
 // Create playState
-var playState = {preload: preload, create: create, update: update };
+var playState = {
+	preload: preload,
+	create: create,
+	update: update
+};
 
 // Load media
 function preload(){
@@ -735,6 +789,8 @@ function create(){
 	GLOBAL.SCORE = 0;
 	GLOBAL.ROCKS = [];
 	GLOBAL.SHOOTS = [];
+	GLOBAL.LEVEL = 5;
+	GLOBAL.COMPLEXITY = 3;
 
 	// Enable physic and reset world bounds
 	game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -770,11 +826,16 @@ function create(){
 // Update game state
 function update(){
 
+	if(GLOBAL.SCORE == GLOBAL.LEVEL){
+		GLOBAL.LEVEL += 5;
+		GLOBAL.COMPLEXITY++;
+	};
+
 	// Check for a player control events
 	control.update();
 
     // Check how many asteroids there are on map
-    if(GLOBAL.ROCKS.length < GLOBAL.LEVEL * GLOBAL.COMPLEXITY){
+    if(GLOBAL.ROCKS.length < GLOBAL.COMPLEXITY){
     	GLOBAL.ROCKS.push(new Asteroid());
     };
 

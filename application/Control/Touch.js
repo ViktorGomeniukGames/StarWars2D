@@ -20,7 +20,7 @@ var Touch = function(){
         var fireButton = new TouchButton(
             {
                 x: GLOBAL.WIDTH - 60,
-                y: GLOBAL.HEIGHT - 50
+                y: GLOBAL.HEIGHT - 60
             }, 5, 5, function(){player.fire()}, 1, 1);
 
         var exitButton = new TouchButton({
@@ -30,7 +30,7 @@ var Touch = function(){
                 game.state.start('Final');
             }, 1, 1);
 
-        new Pad({x: 100, y: GLOBAL.HEIGHT - 100}, state);
+        new Pad({x: 60, y: GLOBAL.HEIGHT - 60}, state);
 
     };
 

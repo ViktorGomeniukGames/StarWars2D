@@ -35,8 +35,8 @@ var Asteroid = function(){
 
 	// Set random velocity
 	asteroid.velocity = {
-		x: getRandomInt(-3, 3) * GLOBAL.LEVEL,
-		y: getRandomInt(-3, 3) * GLOBAL.LEVEL
+		x: getRandomInt(-3, 3),
+		y: getRandomInt(-3, 3)
 	};
 
 	// Update position of asteroid

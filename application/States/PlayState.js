@@ -12,11 +12,12 @@ var Asteroid = require('../Classes/Asteroid');
 var Ship = require('../Classes/Ship');
 var Explosion = require('../Classes/Explosion');
 
-// Create control manager
-control = new CONTROLS();
-
 // Create playState
-var playState = {preload: preload, create: create, update: update };
+var playState = {
+	preload: preload,
+	create: create,
+	update: update
+};
 
 // Load media
 function preload(){
@@ -40,6 +41,8 @@ function create(){
 	GLOBAL.SCORE = 0;
 	GLOBAL.ROCKS = [];
 	GLOBAL.SHOOTS = [];
+	GLOBAL.LEVEL = 5;
+	GLOBAL.COMPLEXITY = 3;
 
 	// Enable physic and reset world bounds
 	game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -75,11 +78,16 @@ function create(){
 // Update game state
 function update(){
 
+	if(GLOBAL.SCORE == GLOBAL.LEVEL){
+		GLOBAL.LEVEL += 5;
+		GLOBAL.COMPLEXITY++;
+	};
+
 	// Check for a player control events
 	control.update();
 
     // Check how many asteroids there are on map
-    if(GLOBAL.ROCKS.length < GLOBAL.LEVEL * GLOBAL.COMPLEXITY){
+    if(GLOBAL.ROCKS.length < GLOBAL.COMPLEXITY){
     	GLOBAL.ROCKS.push(new Asteroid());
     };
 

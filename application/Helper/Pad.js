@@ -13,11 +13,11 @@ var Pad = function(startPosition, context){
 		centerLeft.fixedToCamera = true;
 		centerLeft.anchor.setTo(0.5, 0.5);
 
-		leftActionStart = function(){
+		var leftActionStart = function(){
             center.animations.frame = 112;
             context.__LEFT = true;
         };
-        leftActionStop = function(){
+        var leftActionStop = function(){
 			center.animations.frame = 70;
 			context.__LEFT = false;
 		};
@@ -32,11 +32,11 @@ var Pad = function(startPosition, context){
 		centerRight.fixedToCamera = true;
 		centerRight.anchor.setTo(0.5, 0.5);
 
-		rightActionStart = function(){
+		var rightActionStart = function(){
             center.animations.frame = 67;
             context.__RIGHT = true;
         };
-        rightActionStop = function(){
+        var rightActionStop = function(){
 			center.animations.frame = 70;
 			context.__RIGHT = false;
 		};
@@ -51,11 +51,11 @@ var Pad = function(startPosition, context){
 		top.fixedToCamera = true;
 		top.anchor.setTo(0.5, 0.5);
 
-		topActionStart = function(){
+		var topActionStart = function(){
             center.animations.frame = 28;
             context.__FORWARD = true;
         };
-        topActionStop = function(){
+        var topActionStop = function(){
 			center.animations.frame = 70;
 			context.__FORWARD = false;
 		};
@@ -66,15 +66,15 @@ var Pad = function(startPosition, context){
 		top.events.onInputOut.add(topActionStop, this);
 
 	// Set bottom side
-	var bottom = game.add.button(startPosition.x, startPosition.y + 34.16, 'stick', null, this, 172, 85, 172, 85);
+	var bottom = game.add.button(startPosition.x, startPosition.y + 34.16, 'stick', null, this, 85, 85, 85, 85);
 		bottom.fixedToCamera = true;
 		bottom.anchor.setTo(0.5, 0.5);
 
-		bottomActionStart = function(){
-            center.animations.frame = 157;
+		var bottomActionStart = function(){
+            // center.animations.frame = 157;
         };
-        bottomActionStop = function(){
-			center.animations.frame = 70;
+        var bottomActionStop = function(){
+			// center.animations.frame = 70;
 		};
 		// Set handlers
         bottom.events.onInputDown.add(bottomActionStart, this);
@@ -87,6 +87,20 @@ var Pad = function(startPosition, context){
 		topLeft.fixedToCamera = true;
 		topLeft.anchor.setTo(0.5, 0.5);
 
+		var topLeftActionStart = function(){
+			context.__FORWARD = true;
+			context.__LEFT = true;
+        };
+        var topLeftActionStop = function(){
+        	context.__FORWARD = false;
+        	context.__LEFT = false;
+		};
+		// Set handlers
+        topLeft.events.onInputDown.add(topLeftActionStart, this);
+		topLeft.events.onInputUp.add(topLeftActionStop, this);
+		topLeft.events.onInputOver.add(topLeftActionStart, this);
+		topLeft.events.onInputOut.add(topLeftActionStop, this);
+
 	var bottomLeft = game.add.button(startPosition.x - 34.13, startPosition.y + 34.16, 'stick', null, this, 84, 84, 84, 84);
 		bottomLeft.fixedToCamera = true;
 		bottomLeft.anchor.setTo(0.5, 0.5);
@@ -95,21 +109,23 @@ var Pad = function(startPosition, context){
 		topRight.fixedToCamera = true;
 		topRight.anchor.setTo(0.5, 0.5);
 
+		var topRightActionStart = function(){
+			context.__FORWARD = true;
+			context.__RIGHT = true;
+        };
+        var topRightActionStop = function(){
+        	context.__FORWARD = false;
+        	context.__RIGHT = false;
+		};
+		// Set handlers
+        topRight.events.onInputDown.add(topRightActionStart, this);
+		topRight.events.onInputUp.add(topRightActionStop, this);
+		topRight.events.onInputOver.add(topRightActionStart, this);
+		topRight.events.onInputOut.add(topRightActionStop, this);
+
 	var bottomRight = game.add.button(startPosition.x + 34.13, startPosition.y + 34.16, 'stick', null, this, 86, 86, 86, 86);
 		bottomRight.fixedToCamera = true;
 		bottomRight.anchor.setTo(0.5, 0.5);
-
-	// var pad = [
- //    	topLeft,
- //    	top,
- //    	topRight,
- //    	centerLeft,
- //    	center,
- //    	centerRight,
- //    	bottomLeft,
- //    	bottom,
- //    	bottomRight
- //    ];
 
     return true;
 };

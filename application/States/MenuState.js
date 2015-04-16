@@ -1,6 +1,8 @@
 var game = require('../Helper/Init');
 var MenuButton = require('../Helper/MenuButton');
 var GLOBAL = require('../Helper/Globals');
+var CONTROLS = require('../Control/Control');
+
 
 
 var menuState = {
@@ -30,7 +32,7 @@ var menuState = {
 				{x: 3, y: 2}, // Scale
 				// Handler
 				function(){
-					game.state.states.Menu.state.pause()
+					game.state.states.Menu.state.pause();
 					game.state.start('Game');
 				}
 			);
@@ -52,12 +54,30 @@ var menuState = {
 		volumeIcon = game.add.sprite(50, 50, 'volume');
 			volumeIcon.anchor.setTo(0.5, 0.5);
 			volumeIcon.scale.setTo(2, 2);
-			// volumeIcon.animations.frame = 3;
 
-		var text = "To accelerate use 'W'\n\n" + "To counter-clockwise use 'A'\n\n" + "To clockwise use 'D'\n\n" + "To shoot use 'Space'"
-		var hintText = game.add.bitmapText(GLOBAL.WIDTH / 2 + 50, GLOBAL.HEIGHT * 3 / 4,
+		// Define device type and fit text properly
+		if(game.device.touch){
+			var text = "To control ship use pad\n\n" + "To shoot use 'X' button"
+
+			// Define screen size
+			if(window.innerWidth < 610 || window.innerHeight < 530){
+				var size = 10;
+				var height = GLOBAL.HEIGHT - 20;
+			} else {
+				var size = 20;
+				var height = GLOBAL.HEIGHT * 3 / 4;
+			};
+			var hintText = game.add.bitmapText(GLOBAL.WIDTH / 2, height,
+				'carrier_command', text, size);
+		} else {
+			var text = "To accelerate use 'W'\n\n" + "To turn use 'A' and 'D'\n\n" + "To shoot use 'Space'\n\n" + "To exit use ESC"
+			var hintText = game.add.bitmapText(GLOBAL.WIDTH / 2 + 50, GLOBAL.HEIGHT * 3 / 4,
 				'carrier_command', text, 20);
-			hintText.anchor.setTo(0.5, 0.5);
+		};
+		hintText.anchor.setTo(0.5, 0.5);
+
+		// Create control manager
+		control = new CONTROLS();
 	},
 	update: function(){
 		game.sound.volume = GLOBAL.SOUND / 3;

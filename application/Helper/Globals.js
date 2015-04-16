@@ -1,7 +1,7 @@
 var GLOBAL = {
 	WIDTH: window.innerWidth - 20,
 	HEIGHT: window.innerHeight - 20,
-	LEVEL: 1,
+	LEVEL: 5,
 	COMPLEXITY: 3,
 	SHOOTS: [],
 	ROCKS: [],
