@@ -3,8 +3,20 @@ var GLOBAL = require('../Helper/Globals');
 var getRandomInt = require('../Helper/Functions').getRandomInt;
 
 var Asteroid = function(){
-	// Create new object on random position
-	var asteroid = game.add.sprite(getRandomInt(0, GLOBAL.WIDTH), getRandomInt(0, GLOBAL.HEIGHT), 'asteroid');
+	// Generate new random position
+	var newPosition = {
+		x: getRandomInt(0, GLOBAL.WIDTH),
+		y: getRandomInt(0, GLOBAL.HEIGHT)
+	};
+	// Do not create new asteroid near player
+	var distance = game.math.distance(newPosition.x, newPosition.y, player.x, player.y);
+	if (distance < 100){
+		return Asteroid();
+	};
+
+	// Create new object
+	var asteroid = game.add.sprite(newPosition.x, newPosition.y, 'asteroid');
+
 	asteroid.anchor.setTo(0.5, 0.5);
 	asteroid.scale.setTo(0.5, 0.5);
 
@@ -23,8 +35,8 @@ var Asteroid = function(){
 
 	// Set random velocity
 	asteroid.velocity = {
-		x: getRandomInt(-3, 3) * GLOBAL.LEVEL,
-		y: getRandomInt(-3, 3) * GLOBAL.LEVEL
+		x: getRandomInt(-3, 3),
+		y: getRandomInt(-3, 3)
 	};
 
 	// Update position of asteroid

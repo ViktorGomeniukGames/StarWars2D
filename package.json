@@ -1,10 +1,6 @@
 {
 	"name": "StarWars2D",
 	"description": "Game on Phaser Engine",
-	"version": "0.0.1",
-	"private": true,
-	"dependencies": {
-		"phaser": "git://github.com/photonstorm/phaser.git#master",
-		"browserify": "*"
-	}
+	"version": "2.0.0",
+	"private": true
 }
